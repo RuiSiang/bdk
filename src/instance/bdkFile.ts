@@ -11,7 +11,7 @@ import PeerDockerComposeYaml from '../model/yaml/docker-compose/peerDockerCompos
 import CaDockerComposeYaml from '../model/yaml/docker-compose/caComposeYaml'
 import { OrgJsonType } from '../model/type/org.type'
 import { ProcessError } from '../util'
-import { Config } from '../config'
+import config, { Config } from '../config'
 import { DockerComposeYamlInterface } from '../model/yaml/docker-compose/dockerComposeYaml'
 import ExplorerConnectionProfileYaml from '../model/yaml/explorer/explorerConnectionProfileYaml'
 import ExplorerConfigYaml from '../model/yaml/explorer/explorerConfigYaml'
@@ -120,6 +120,42 @@ export default class BdkFile {
     return configtxOrgs
   }
 
+  public backupCaDirectory (caName: string) {
+    // fs.readdir(`${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}/crypto`, (err, files) => {
+    //   files.forEach(file => {
+    //     const fileDir = path.join(`${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}/crypto`, file);
+    //     if (file !== 'fabric-ca-server.db') {
+    //       fs.rmSync(fileDir,{recursive:true, force:true});
+    //     }
+    //   })
+    // })
+    fs.moveSync(
+      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}`,
+      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}_tmp`,
+    )
+  }
+
+  public prepareCaDirectory (caName: string) {
+    fs.moveSync(
+      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}`,
+      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}_new`,
+    )
+    fs.moveSync(
+      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}_tmp`,
+      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}`,
+    )
+  }
+
+  public updateAndPurgeCaDirectory (caName: string) {
+    fs.rmSync(
+      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}`,
+    )
+    fs.moveSync(
+      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}_new`,
+      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}`,
+    )
+  }
+
   public copyOrdererOrgTLSCa (hostname: string, domain: string) {
     this.createTlsFolder(`${hostname}.${domain}`)
     fs.copyFileSync(`${this.bdkPath}/ordererOrganizations/${domain}/orderers/${hostname}.${domain}/tls/ca.crt`, `${this.bdkPath}/tlsca/${hostname}.${domain}/ca.crt`)
@@ -128,6 +164,14 @@ export default class BdkFile {
   public copyPeerOrgTLSCa (hostname: string, domain: string) {
     this.createTlsFolder(`${hostname}.${domain}`)
     fs.copyFileSync(`${this.bdkPath}/peerOrganizations/${domain}/peers/${hostname}.${domain}/tls/ca.crt`, `${this.bdkPath}/tlsca/${hostname}.${domain}/ca.crt`)
+  }
+
+  public getPeerOrgIcaCertBase64 (domain: string) {
+    return fs.readFileSync(`${this.bdkPath}/ca/ica.${domain}_new/crypto/ca-cert.pem`).toString('base64')
+  }
+
+  public getPeerOrgIcaTlsCertBase64 (domain: string) {
+    return fs.readFileSync(`${this.bdkPath}/ca/ica.${domain}_new/crypto/ca-cert.pem`).toString('base64')
   }
 
   public getPeerOrgTlsCertString (number: number, domain: string) {
