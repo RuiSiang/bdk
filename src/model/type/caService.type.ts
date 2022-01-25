@@ -112,6 +112,21 @@ export interface CaEnrollType extends CaServiceType {
 }
 
 /**
+ * @requires upstream - [string] enrollment upstream host
+ * @requires clientId - [string] client id to enroll with
+ * @requires type - [{@link CaEnrollCommandTypeEnum}] enrollment type
+ * @requires role - [string] ca type rca, peer org or orderer org
+ * @requires orgHostname - [string] enroll org hostname
+ */
+export interface CaReenrollType {
+  upstream: string
+  clientId: string
+  type: CaEnrollCommandTypeEnum
+  role: string
+  orgHostname: string
+}
+
+/**
  * @requires upstream - [string] registration upstream host
  * @requires upstreamPort - [number] registration upstream port
  * @requires clientId - [string] client id to register

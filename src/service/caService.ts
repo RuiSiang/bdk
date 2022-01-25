@@ -5,6 +5,7 @@ import {
   CaEnrollTypeEnum,
   CaDownType,
   CaEnrollCommandTypeEnum,
+  CaReenrollType,
 } from '../model/type/caService.type'
 import CaInstance from '../instance/ca'
 import FabricCa from '../instance/fabricCaClient'
@@ -45,6 +46,29 @@ export default class Ca extends AbstractService {
    */
   public async down (arg: CaDownType): Promise<InfraRunnerResultType> {
     return await (new CaInstance(arg.caName, this.config, this.infra)).down()
+  }
+
+  /**
+   * @description 重設 CA 機器
+   * @param caName - CA 機器的名稱
+   */
+  public async preupdate (arg: CaDownType): Promise<void> {
+    await (new CaInstance(arg.caName, this.config, this.infra)).down()
+    this.bdkFile.backupCaDirectory(arg.caName)
+    await (new CaInstance(arg.caName, this.config, this.infra)).up()
+    await (new CaInstance(arg.caName, this.config, this.infra)).down()
+    this.bdkFile.prepareCaDirectory(arg.caName)
+    await (new CaInstance(arg.caName, this.config, this.infra)).up()
+  }
+
+  /**
+   * @description 重設 CA 機器
+   * @param caName - CA 機器的名稱
+   */
+  public async postupdate (arg: CaDownType): Promise<void> {
+    await (new CaInstance(arg.caName, this.config, this.infra)).down()
+    this.bdkFile.updateAndPurgeCaDirectory(arg.caName)
+    await (new CaInstance(arg.caName, this.config, this.infra)).up()
   }
 
   /**
@@ -125,6 +149,65 @@ export default class Ca extends AbstractService {
       },
       format: (arg: CaEnrollType) => {
         logger.debug('enroll step 3 (format)')
+        if (arg.type === CaEnrollCommandTypeEnum.orderer) {
+          this.bdkFile.caFormatOrderer(arg.upstream, arg.clientId, arg.orgHostname)
+        } else if (arg.type === CaEnrollCommandTypeEnum.peer) {
+          this.bdkFile.caFormatPeer(arg.upstream, arg.clientId, arg.orgHostname)
+        } else if (arg.type === CaEnrollCommandTypeEnum.client) {
+          if (arg.role === 'orderer' || arg.role === 'peer') {
+            this.bdkFile.caFormatOrg(arg.upstream, arg.clientId, arg.role, arg.orgHostname)
+          }
+        } else if (arg.type === CaEnrollCommandTypeEnum.user) {
+          if (arg.role === 'orderer' || arg.role === 'peer') {
+            this.bdkFile.caFormatUser(arg.upstream, arg.clientId, arg.role, arg.orgHostname)
+          }
+        }
+      },
+    }
+  }
+
+  /**
+   * @description 取得 CA 機器的憑證
+   */
+  public async reenroll (arg: CaReenrollType) {
+    await this.reenrollSteps().reenrollMsp(arg)
+    if (arg.type === CaEnrollCommandTypeEnum.orderer || arg.type === CaEnrollCommandTypeEnum.peer) {
+      await this.reenrollSteps().reenrollTls(arg)
+    }
+    this.reenrollSteps().format(arg)
+  }
+
+  /**
+   * @ignore
+   */
+  public reenrollSteps () {
+    return {
+      reenrollMsp: async (arg: CaReenrollType): Promise<InfraRunnerResultType> => {
+        logger.debug('reenroll step 1 (msp)')
+        if (Object.values(CaEnrollCommandTypeEnum).includes(arg.type)) {
+          return await (new FabricCa(this.config, this.infra)).reenroll(
+            CaEnrollTypeEnum.msp,
+            arg.clientId,
+            arg.upstream,
+          )
+        } else {
+          throw new Error('Type should be orderer, peer, client or user')
+        }
+      },
+      reenrollTls: async (arg: CaReenrollType): Promise<InfraRunnerResultType> => {
+        logger.debug('reenroll step 2 (tls)')
+        if (arg.type === CaEnrollCommandTypeEnum.orderer || arg.type === CaEnrollCommandTypeEnum.peer) {
+          return await (new FabricCa(this.config, this.infra)).reenroll(
+            CaEnrollTypeEnum.tls,
+            arg.clientId,
+            arg.upstream,
+          )
+        } else {
+          throw new Error('Type should be orderer or peer')
+        }
+      },
+      format: (arg: CaReenrollType) => {
+        logger.debug('reenroll step 3 (format)')
         if (arg.type === CaEnrollCommandTypeEnum.orderer) {
           this.bdkFile.caFormatOrderer(arg.upstream, arg.clientId, arg.orgHostname)
         } else if (arg.type === CaEnrollCommandTypeEnum.peer) {

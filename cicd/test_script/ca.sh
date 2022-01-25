@@ -7,13 +7,13 @@ export BDK_NETWORK_NAME=shell-network-ca
 
 RCA_DOMAIN='rca.cathaybc.com'
 RCA_PORT='7054'
-ICA_DOMAIN_ORG0='ica.org0.cathaybc.com'
+ICA_DOMAIN_ORG0='ica.org0.bdk.example.com'
 ICA_PORT_ORG0='7154'
-ICA_DOMAIN_ORG1='ica.org1.cathaybc.com'
+ICA_DOMAIN_ORG1='ica.org1.bdk.example.com'
 ICA_PORT_ORG1='7254'
-ICA_DOMAIN_ORG2='ica.org2.cathaybc.com'
+ICA_DOMAIN_ORG2='ica.org2.bdk.example.com'
 ICA_PORT_ORG2='7354'
-ICA_DOMAIN_ORGNEW='ica.orgnew.cathaybc.com'
+ICA_DOMAIN_ORGNEW='ica.orgnew.bdk.example.com'
 ICA_PORT_ORGNEW='7454'
 
 # RCA

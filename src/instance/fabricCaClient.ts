@@ -52,6 +52,28 @@ export default class FabricCa extends AbstractInstance {
       options)
   }
 
+  public async reenroll (
+    type: CaEnrollTypeEnum,
+    clientId: string,
+    upstream: string,
+    options?: OptionsType,
+  ): Promise<InfraRunnerResultType> {
+    return await this.infraRunCommand(
+      [
+        'fabric-ca-client',
+        'reenroll',
+        '-d',
+        '--home',
+        `${this.dockerPath}/ca/${clientId}@${upstream}`,
+        '--tls.certfiles',
+        `${this.dockerPath}/ca/${upstream}/crypto/tls-cert.pem`,
+      ]
+        .concat(type === CaEnrollTypeEnum.client ? [] : ['--mspdir', type]),
+      undefined,
+      undefined,
+      options)
+  }
+
   public async register (
     type: CaRegisterTypeEnum,
     clientId: string,
