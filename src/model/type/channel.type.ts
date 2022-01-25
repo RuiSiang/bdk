@@ -108,3 +108,12 @@ export interface ChannelCreateChannelConfigSignType extends ChannelCreateChannel
 export interface ChannelCreateChannelConfigUpdateType extends ChannelCreateChannelConfigSignType {
   orderer: string
 }
+
+/**
+ * @requires channelName - [string] channel 的名稱
+ * @requires orderer - [string] orderer 的 address 和 port
+ */
+export interface ChannelCertPreUpdateType {
+  channelName: string
+  orderer: string
+}
