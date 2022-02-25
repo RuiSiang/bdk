@@ -24,6 +24,7 @@ export const builder = (yargs: Argv<OptType>) => {
     .option('interactive', { type: 'boolean', description: '是否使用 Cathay BDK 互動式問答', alias: 'i' })
     .option('name', { type: 'string', description: '更新 Channel 的名稱', alias: 'n' })
     .option('orderer', { type: 'string', choices: ordererList, description: '使用 Orderer 的 Domain name 和 Port 號碼' })
+    .option('adminName', { type: 'string', description: '更新用的 admin 名稱', alias: 'a' })
 }
 
 export const handler = async (argv: Arguments) => {
@@ -66,9 +67,29 @@ export const handler = async (argv: Arguments) => {
       throw new ParamsError('Invalid params: Duplicate parameters <orderer>')
     }
   })()
+
+  const adminName = await (async () => {
+    if (argv.interactive) {
+      return (await prompts([
+        {
+          type: 'text',
+          name: 'adminName',
+          message: 'What is your channel admin\'s name?',
+          initial: 'Admin@org.example.com',
+        },
+      ], { onCancel })).adminName
+    } else if (argv.adminName) {
+      return argv.adminName
+    } else {
+      throw new ParamsError('Invalid params: Duplicate parameters <adminName>')
+    }
+  })()
+  
+
   const certPreUpdateInput: ChannelCertPreUpdateType = {
     channelName,
     orderer,
+    adminName
   }
 
   await channel.channelCertPreUpdate(certPreUpdateInput)

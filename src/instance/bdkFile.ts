@@ -153,8 +153,8 @@ export default class BdkFile {
     return fs.readFileSync(`${this.bdkPath}/ca/ica.${domain}/crypto/ca-cert.pem`).toString('base64')
   }
 
-  public getPeerOrgIcaAdminCertBase64 (domain: string) {
-    return fs.readFileSync(`${this.bdkPath}/peerOrganizations/${domain}/msp/admincerts/cert.pem`).toString('base64')
+  public getPeerOrgIcaAdminCertBase64 (domain: string, adminName:string) {
+    return fs.readFileSync(`${this.bdkPath}/peerOrganizations/${domain}/users/${adminName}/msp/admincerts/cert.pem`).toString('base64')
   }
 
   public getPeerOrgTlsCertString (number: number, domain: string) {

@@ -116,4 +116,5 @@ export interface ChannelCreateChannelConfigUpdateType extends ChannelCreateChann
 export interface ChannelCertPreUpdateType {
   channelName: string
   orderer: string
+  adminName: string
 }
