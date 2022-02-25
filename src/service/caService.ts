@@ -56,9 +56,7 @@ export default class Ca extends AbstractService {
     await (new CaInstance(arg.caName, this.config, this.infra)).down()
     this.bdkFile.backupCaDirectory(arg.caName)
     await (new CaInstance(arg.caName, this.config, this.infra)).up()
-    await (new CaInstance(arg.caName, this.config, this.infra)).down()
-    this.bdkFile.prepareCaDirectory(arg.caName)
-    await (new CaInstance(arg.caName, this.config, this.infra)).up()
+    // TODO: enroll new admin
   }
 
   /**
@@ -66,9 +64,9 @@ export default class Ca extends AbstractService {
    * @param caName - CA 機器的名稱
    */
   public async postupdate (arg: CaDownType): Promise<void> {
-    await (new CaInstance(arg.caName, this.config, this.infra)).down()
-    this.bdkFile.updateAndPurgeCaDirectory(arg.caName)
-    await (new CaInstance(arg.caName, this.config, this.infra)).up()
+    // await (new CaInstance(arg.caName, this.config, this.infra)).down()
+    // this.bdkFile.updateAndPurgeCaDirectory(arg.caName)
+    // await (new CaInstance(arg.caName, this.config, this.infra)).up()
   }
 
   /**

@@ -131,28 +131,7 @@ export default class BdkFile {
     // })
     fs.moveSync(
       `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}`,
-      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}_tmp`,
-    )
-  }
-
-  public prepareCaDirectory (caName: string) {
-    fs.moveSync(
-      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}`,
-      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}_new`,
-    )
-    fs.moveSync(
-      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}_tmp`,
-      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}`,
-    )
-  }
-
-  public updateAndPurgeCaDirectory (caName: string) {
-    fs.rmSync(
-      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}`,
-    )
-    fs.moveSync(
-      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}_new`,
-      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}`,
+      `${config.infraConfig.bdkPath}/${this.config.networkName}/ca/${caName}_old`,
     )
   }
 
@@ -167,11 +146,15 @@ export default class BdkFile {
   }
 
   public getPeerOrgIcaCertBase64 (domain: string) {
-    return fs.readFileSync(`${this.bdkPath}/ca/ica.${domain}_new/crypto/ca-cert.pem`).toString('base64')
+    return fs.readFileSync(`${this.bdkPath}/ca/ica.${domain}/crypto/ca-cert.pem`).toString('base64')
   }
 
   public getPeerOrgIcaTlsCertBase64 (domain: string) {
-    return fs.readFileSync(`${this.bdkPath}/ca/ica.${domain}_new/crypto/ca-cert.pem`).toString('base64')
+    return fs.readFileSync(`${this.bdkPath}/ca/ica.${domain}/crypto/ca-cert.pem`).toString('base64')
+  }
+
+  public getPeerOrgIcaAdminCertBase64 (domain: string) {
+    return fs.readFileSync(`${this.bdkPath}/peerOrganizations/${domain}/msp/admincerts/cert.pem`).toString('base64')
   }
 
   public getPeerOrgTlsCertString (number: number, domain: string) {

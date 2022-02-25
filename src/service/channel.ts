@@ -384,6 +384,7 @@ export default class Channel extends AbstractService {
         this.bdkFile.createChannelConfigJson(channelName, Channel.channelConfigFileName(channelName).originalFileName, JSON.stringify(configBlock))
         configBlock.channel_group.groups.Application.groups[orgName].values.MSP.value.config.intermediate_certs = [this.bdkFile.getPeerOrgIcaCertBase64(this.config.orgDomainName)]
         configBlock.channel_group.groups.Application.groups[orgName].values.MSP.value.config.tls_intermediate_certs = [this.bdkFile.getPeerOrgIcaTlsCertBase64(this.config.orgDomainName)]
+        configBlock.channel_group.groups.Application.groups[orgName].values.MSP.value.config.admins = [this.bdkFile.getPeerOrgIcaAdminCertBase64(this.config.orgDomainName)]
 
         this.bdkFile.createChannelConfigJson(channelName, Channel.channelConfigFileName(channelName).modifiedFileName, JSON.stringify(configBlock))
 
